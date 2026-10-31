@@ -57,6 +57,10 @@
   button:disabled { background: #a9b3c2; cursor: not-allowed; }
   .vign { background: #fbf8ef; border-left: 4px solid var(--red); padding: 12px 14px; border-radius: 6px; }
   .err { color: var(--red); font-size: 14px; min-height: 1.2em; }
+  .q.thieu { color: var(--red); }
+  .scale.thieu, .opts.thieu, .ab.thieu { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 8px; }
+  table.cj thead th, table.cj thead td { position: sticky; top: 0; z-index: 2; }
+  table.cj thead th { background: #fff; }
   pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; background: #f0f2f5; padding: 10px; border-radius: 6px; max-height: 260px; overflow: auto; }
   .test { background: #fff4d6; border: 1px solid #e8c56a; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; }
   @media (max-width: 420px) { table.cj { font-size: 13px; } table.cj th { width: 34%; } }
@@ -257,13 +261,33 @@ function go() {
   if (document.getElementById("btn").disabled) return;
   (p.fields || []).forEach(function (f) { if (val(f) === null) ok = false; });
   if (p.check && !p.check()) ok = false;
-  if (!ok) { document.getElementById("err").textContent = "Xin trả lời đầy đủ các câu trên trang này."; return; }
+  if (!ok) {
+    document.getElementById("err").textContent = "Xin trả lời đầy đủ các câu trên trang này (câu còn thiếu được đánh dấu đỏ).";
+    var dau = null;
+    (p.fields || []).forEach(function (f) {
+      if (val(f) !== null) return;
+      var o = document.querySelector('input[name="' + f + '"]'); if (!o) return;
+      var nhom = o.closest(".scale, .opts, .ab"); if (!nhom) return;
+      nhom.classList.add("thieu");
+      var cau = nhom.previousElementSibling; if (cau && cau.classList.contains("q")) cau.classList.add("thieu");
+      if (!dau) dau = cau || nhom;
+    });
+    if (dau) dau.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   (p.fields || []).forEach(function (f) { var v = val(f); R[f] = (p.raw && p.raw.indexOf(f) >= 0) ? v : +v; });
   if (p.save) p.save();
   var nx = p.next ? p.next() : null;
   if (nx === "ket_thuc_som") return finish(false);
   if (cur + 1 < PAGES.length) show(cur + 1); else finish(true);
 }
+document.addEventListener("change", function (e) {   // trả lời xong thì bỏ đánh dấu đỏ của câu đó
+  var nhom = e.target.closest && e.target.closest(".scale.thieu, .opts.thieu, .ab.thieu"); if (!nhom) return;
+  nhom.classList.remove("thieu");
+  var cau = nhom.previousElementSibling; if (cau) cau.classList.remove("thieu");
+});
+// Đang làm dở mà bấm quay lại hoặc đóng trang thì trình duyệt hỏi lại, tránh mất bài
+window.addEventListener("beforeunload", function (e) { if (cur > 0 && !window.__KETQUA) { e.preventDefault(); e.returnValue = ""; } });
 function finish(day_du) {
   R.ketthuc = new Date().toISOString();
   R.thoigian_phut = Math.round((new Date(R.ketthuc) - new Date(R.batdau)) / 6000) / 10;
