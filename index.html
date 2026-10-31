@@ -41,6 +41,9 @@
   table.cj th, table.cj td { border-bottom: 1px solid var(--line); padding: 8px 6px; vertical-align: top; }
   table.cj th { text-align: left; color: var(--muted); font-weight: 600; width: 30%; }
   table.cj thead td { font-weight: 700; color: var(--navy); text-align: center; background: var(--sel); }
+  table.cj td.ca { background: #eef4fb; }  table.cj thead td.ca { background: #d6e4f5; }
+  table.cj td.cb { background: #fbf3e4; }  table.cj thead td.cb { background: #f3e1bf; }
+  table.cj td.ca, table.cj td.cb { border-left: 3px solid #fff; }
   .ab { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .ab label { text-align: center; padding: 12px 0; border: 2px solid var(--line); border-radius: 8px; font-weight: 700; cursor: pointer; background: #fff; }
   .ab label:has(input:checked) { border-color: var(--red); background: #fbecec; color: var(--red); }
@@ -174,9 +177,9 @@ for (var t = 1; t <= 8; t++) (function (t) {
   PAGES.push({ id: "luot_" + t, render: function () {
     var A = TK.luot[t - 1][0], B = TK.luot[t - 1][1];
     var rows = THUTU.map(function (j) {
-      return "<tr><th>" + THUOC_TINH[j][1] + "</th><td>" + THUOC_TINH[j][2][A[j]] + "</td><td>" + THUOC_TINH[j][2][B[j]] + "</td></tr>"; }).join("");
+      return "<tr><th>" + THUOC_TINH[j][1] + "</th><td class=\"ca\">" + THUOC_TINH[j][2][A[j]] + "</td><td class=\"cb\">" + THUOC_TINH[j][2][B[j]] + "</td></tr>"; }).join("");
     return '<div class="card"><h2>Lượt ' + t + "/8</h2>" +
-      '<table class="cj"><thead><tr><th></th><td>Trường A</td><td>Trường B</td></tr></thead><tbody>' + rows + "</tbody></table>" +
+      '<table class="cj"><thead><tr><th></th><td class="ca">Trường A</td><td class="cb">Trường B</td></tr></thead><tbody>' + rows + "</tbody></table>" +
       q("Anh/chị chọn trường nào?", '<div class="ab"><label><input type="radio" name="chon_' + t + '" value="A">Trường A</label><label><input type="radio" name="chon_' + t + '" value="B">Trường B</label></div>') +
       q("Mức độ muốn cho con học ở Trường A", scale("diemA_" + t, 7, ["Rất không muốn", "Rất muốn"])) +
       q("Mức độ muốn cho con học ở Trường B", scale("diemB_" + t, 7, ["Rất không muốn", "Rất muốn"])) + "</div>";
