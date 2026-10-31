@@ -147,8 +147,9 @@ PAGES.push({ id: "dongy", render: function () {
     "<p>Nhóm nghiên cứu của Trường Đại học Ngoại thương mời anh/chị tham gia một khảo sát về cách phụ huynh lựa chọn trường tư thục và đánh giá dịch vụ liên lạc giữa nhà trường và gia đình.</p>" +
     "<p>Khảo sát mất khoảng 10 phút. Anh/chị sẽ so sánh 8 cặp trường giả định, trả lời một tình huống ngắn, rồi đọc hai đoạn thông tin ngắn và trả lời vài câu cuối. Không có câu trả lời đúng hay sai.</p>" +
     (LINK_QUA ? "<p>Làm xong khảo sát, anh/chị có thể để lại số điện thoại để <b>bốc thăm 20 thẻ quà tặng, mỗi thẻ 200.000 đồng</b>. Số điện thoại ghi ở một biểu mẫu riêng, nên nhóm nghiên cứu không biết câu trả lời nào là của ai.</p>" : "") +
-    "<p>Việc tham gia là <b>tự nguyện và ẩn danh</b>. Chúng tôi không thu họ tên, số điện thoại, tên trường của con hay địa chỉ IP. Dữ liệu chỉ dùng cho mục đích nghiên cứu, được xử lý theo Luật Bảo vệ dữ liệu cá nhân 2025, và chỉ được công bố ở dạng tổng hợp. Anh/chị có thể dừng bất cứ lúc nào.</p>" +
-    '<p class="muted">Liên hệ: ThS. Nghiên cứu sinh Nguyễn Hoài Thu, TS. Đỗ Ngọc Kiên và TS. Nguyễn Minh Phúc, Trường Đại học Ngoại thương (dongockien@ftu.edu.vn).</p>' +
+    "<p>Việc tham gia là <b>tự nguyện và ẩn danh</b>. Chúng tôi không thu họ tên, số điện thoại, tên trường của con hay địa chỉ IP. Dữ liệu chỉ dùng cho mục đích nghiên cứu, được xử lý theo Luật Bảo vệ dữ liệu cá nhân 2025 và chỉ được công bố ở dạng tổng hợp. Anh/chị có thể dừng bất cứ lúc nào.</p>" +
+    "<p>Nhà trường của con anh/chị không xem được câu trả lời của từng người. Tham gia hay không <b>không ảnh hưởng gì đến con anh/chị ở trường</b>.</p>" +
+    '<p class="muted">Liên hệ: TS. Đỗ Ngọc Kiên, Trường Đại học Ngoại thương (dongockien@ftu.edu.vn).</p>' +
     q("Anh/chị có đồng ý tham gia không?", radio("dongy", [[1, "Tôi đồng ý tham gia"], [0, "Tôi không đồng ý"]])) + "</div>";
 }, check: function () { return val("dongy") !== null; }, save: function () { R.dongy = +val("dongy"); },
    next: function () { return R.dongy === 1 ? null : "ket_thuc_som"; } });
