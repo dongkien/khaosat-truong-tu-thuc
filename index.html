@@ -44,7 +44,7 @@
   table.cj td.ca { background: #eef4fb; }  table.cj thead td.ca { background: #d6e4f5; }
   table.cj td.cb { background: #fbf3e4; }  table.cj thead td.cb { background: #f3e1bf; }
   table.cj td.ca, table.cj td.cb { border-left: 3px solid #fff; }
-  table.cj tr.trung th, table.cj tr.trung td.ca, table.cj tr.trung td.cb { background: #f3f4f6; color: #8a919c; font-weight: 400; }
+  table.cj tr.trung td.ca, table.cj tr.trung td.cb { background: #fff; color: var(--ink); }
   .ab { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .ab label { text-align: center; padding: 12px 0; border: 2px solid var(--line); border-radius: 8px; font-weight: 700; cursor: pointer; background: #fff; }
   .ab label.ca { background: #eef4fb; border-color: #b9cfe9; }  .ab label.cb { background: #fbf3e4; border-color: #e6cf9f; }
@@ -176,7 +176,7 @@ PAGES.push({ id: "huongdan_cj", render: function () {
   return '<div class="card"><h2>Phần 1: Chọn trường</h2>' +
     "<p>Tiếp theo là <b>8 lượt</b>. Mỗi lượt có hai trường giả định A và B. Hai trường <b>giống nhau ở mọi điểm không được nêu</b> (vị trí, cơ sở vật chất, chương trình...).</p>" +
     "<p>Ở mỗi lượt, xin chọn trường anh/chị muốn cho con học, rồi chấm điểm mức độ muốn cho con học ở từng trường. Kể cả khi chưa hài lòng với cả hai, xin vẫn chọn trường tốt hơn.</p>" +
-    "<p>Đặc điểm nào hai trường giống nhau thì dòng đó có nền xám nhạt, để anh/chị dễ thấy hai trường khác nhau ở đâu.</p></div>";
+    "<p>Đặc điểm nào hai trường giống nhau thì dòng đó để nền trắng; các dòng có màu là chỗ hai trường khác nhau.</p></div>";
 } });
 
 for (var t = 1; t <= 8; t++) (function (t) {
