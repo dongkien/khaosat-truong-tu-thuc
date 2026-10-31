@@ -85,6 +85,19 @@ var KB = {
   4: "Trường X có một ứng dụng phụ huynh duy nhất cho mọi dịch vụ, có trợ lý AI. Anh/chị gửi một tin nhắn; trợ lý AI trả lời ngay, hủy chuyến xe, gửi lịch học bù và báo giáo viên chủ nhiệm; nhân viên chăm sóc phụ huynh kiểm tra lại và liên hệ anh/chị khi cần."
 };
 var DY = ["Hoàn toàn không đồng ý", "Hoàn toàn đồng ý"];
+// Thử nghiệm thông tin 2x2 (H5): ô 1 = vận hành AI (tt_a = 1) hoặc giả dược bán trú; ô 2 = quyền dữ liệu (tt_b = 1) hoặc giả dược xe đưa đón.
+// Bốn đoạn cân độ dài; đoạn quyền dữ liệu bám Điều 4 khoản 1, khoản 5 và Điều 24 khoản 2 Luật 91/2025/QH15 (đã đối chiếu toàn văn 1/11/2026).
+var TT_O1 = {
+  1: "Trợ lý AI của trường là phần mềm tự động trả lời câu hỏi thường gặp của phụ huynh như lịch học, thực đơn, hủy chuyến xe hay hạn đóng học phí. Trợ lý dựa trên thông tin nhà trường nạp vào, trả lời được cả ngoài giờ. Việc riêng của từng học sinh như sức khỏe hay kết quả học tập thường được chuyển cho giáo viên, nhân viên. Trợ lý có thể trả lời sai khi câu hỏi phức tạp hoặc thông tin chưa cập nhật, nên nhân viên cần kiểm tra lại.",
+  0: "Ở nhiều trường tư thục tại Hà Nội, học sinh bán trú ăn trưa và nghỉ trưa tại trường từ thứ Hai đến thứ Sáu. Thực đơn thường được công bố theo tuần, gồm món chính, rau, canh và tráng miệng. Phụ huynh có thể báo trước nếu con dị ứng với thực phẩm nào để nhà bếp đổi món. Giờ nghỉ trưa thường kéo dài khoảng một tiếng, có giáo viên hoặc bảo mẫu trông và phòng nghỉ được bố trí riêng cho từng lớp."
+};
+var TT_O2 = {
+  1: "Luật Bảo vệ dữ liệu cá nhân 2025 có hiệu lực từ ngày 1/1/2026. Theo Điều 4, người có dữ liệu được biết về việc xử lý dữ liệu của mình, được đồng ý hoặc không đồng ý, được rút lại sự đồng ý, được xem, chỉnh sửa và yêu cầu xóa dữ liệu. Với trẻ em, cha mẹ là người đại diện theo pháp luật thay con thực hiện các quyền này (Điều 24). Nhà trường nhận được yêu cầu phải thực hiện kịp thời trong thời hạn luật định.",
+  0: "Dịch vụ xe đưa đón của các trường tư thục thường chia theo tuyến, mỗi xe có lái xe và một người phụ trách đón trả học sinh. Phụ huynh thường đăng ký theo học kỳ hoặc theo năm học rồi báo trước khi con nghỉ học để xe không phải chờ ở điểm đón. Giờ đón buổi sáng phụ thuộc vào vị trí của gia đình trên tuyến, nên nhà ở đầu tuyến thường được đón sớm hơn nhà ở cuối tuyến."
+};
+var TT_GIAY = 20;   // nút Tiếp tục ở trang thông tin chỉ hiện sau 20 giây
+var WTP = [[1, "Không đồng ý, kể cả khi miễn phí"], [2, "0 đồng (chỉ đồng ý nếu miễn phí)"], [3, "1 triệu đồng"], [4, "3 triệu đồng"],
+           [5, "6 triệu đồng"], [6, "10 triệu đồng"], [7, "15 triệu đồng"], [8, "20 triệu đồng trở lên"]];
 
 // ---------- Khởi tạo phiên: phân ngẫu nhiên phiên bản, thứ tự thuộc tính ----------
 function rid() { var a = new Uint32Array(2); crypto.getRandomValues(a); return "W" + a[0].toString(36) + a[1].toString(36); }
@@ -96,6 +109,8 @@ var R = { id: rid(), phienban: PB, nhom_kichban: TK.nhom, thutu_thuoctinh: THUTU
           batdau: new Date().toISOString(), thiet_bi: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "dienthoai" : "maytinh" };
 // Kênh tiếp cận: mỗi kênh phát một link riêng dạng ...?k=tr01 (trường), ?k=nh03 (nhóm phụ huynh), ?k=ca (cá nhân)
 R.nguon = (new URLSearchParams(location.search).get("k") || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 20);
+// Thử nghiệm thông tin (H5): hai yếu tố bốc độc lập, xác suất 50%, độc lập với phiên bản conjoint và nhóm tình huống
+(function () { var a = new Uint32Array(2); crypto.getRandomValues(a); R.tt_a = a[0] % 2; R.tt_b = a[1] % 2; })();
 
 // ---------- Tiện ích dựng câu hỏi ----------
 function radio(name, items) {   // items: [[giá trị, nhãn], ...]
@@ -115,7 +130,7 @@ var PAGES = [];
 PAGES.push({ id: "dongy", render: function () {
   return '<div class="card"><h1>Thư mời tham gia khảo sát</h1>' +
     "<p>Nhóm nghiên cứu của Trường Đại học Ngoại thương mời anh/chị tham gia một khảo sát về cách phụ huynh lựa chọn trường tư thục và đánh giá dịch vụ liên lạc giữa nhà trường và gia đình.</p>" +
-    "<p>Khảo sát mất khoảng 12 phút. Anh/chị sẽ so sánh 8 cặp trường giả định và trả lời một tình huống ngắn. Không có câu trả lời đúng hay sai.</p>" +
+    "<p>Khảo sát mất khoảng 15 phút. Anh/chị sẽ so sánh 8 cặp trường giả định, trả lời một tình huống ngắn, rồi đọc hai đoạn thông tin ngắn và trả lời vài câu cuối. Không có câu trả lời đúng hay sai.</p>" +
     "<p>Việc tham gia là <b>tự nguyện và ẩn danh</b>. Chúng tôi không thu họ tên, số điện thoại, tên trường của con hay địa chỉ IP. Dữ liệu chỉ dùng cho mục đích nghiên cứu, được xử lý theo Luật Bảo vệ dữ liệu cá nhân 2025, và chỉ được công bố ở dạng tổng hợp. Anh/chị có thể dừng bất cứ lúc nào.</p>" +
     '<p class="muted">Liên hệ: Nguyễn Hoài Thu và TS. Đỗ Ngọc Kiên, Trường Đại học Ngoại thương (dongockien@ftu.edu.vn).</p>' +
     q("Anh/chị có đồng ý tham gia không?", radio("dongy", [[1, "Tôi đồng ý tham gia"], [0, "Tôi không đồng ý"]])) + "</div>";
@@ -178,6 +193,41 @@ PAGES.push({ id: "kichban", render: function () {
    check: function () { var v = document.getElementById("y_hocphi").value; return v !== "" && +v >= 0 && +v <= 1000; },
    save: function () { R.y_hocphi = +document.getElementById("y_hocphi").value; } });
 
+// ---------- Phần 3: thử nghiệm thông tin (H5) ----------
+var tt_batdau = 0, tt_hen = null;
+PAGES.push({ id: "thongtin_h5", render: function () {
+  return '<div class="card"><h2>Phần 3: Một số thông tin về dịch vụ ở trường tư thục</h2>' +
+    '<p class="muted">Xin anh/chị đọc hai đoạn ngắn dưới đây.</p>' +
+    "<p>" + TT_O1[R.tt_a] + "</p><p>" + TT_O2[R.tt_b] + "</p>" +
+    '<p class="muted" id="demnguoc"></p></div>';
+}, onshow: function () {
+  tt_batdau = Date.now();
+  var btn = document.getElementById("btn"), dn = document.getElementById("demnguoc"), con = TT_GIAY;
+  btn.disabled = true; dn.textContent = "Nút Tiếp tục sẽ hiện sau " + con + " giây.";
+  if (tt_hen) clearInterval(tt_hen);
+  tt_hen = setInterval(function () {
+    con -= 1;
+    if (con <= 0) { clearInterval(tt_hen); tt_hen = null; btn.disabled = false; dn.textContent = ""; }
+    else dn.textContent = "Nút Tiếp tục sẽ hiện sau " + con + " giây.";
+  }, 1000);
+}, save: function () { R.tt_giay = Math.round((Date.now() - tt_batdau) / 100) / 10; } });
+
+PAGES.push({ id: "ykien_h5", render: function () {
+  return '<div class="card"><h2>Phần 3: Ý kiến của anh/chị</h2><p class="muted">Mức độ đồng ý của anh/chị với từng ý sau (1 = hoàn toàn không đồng ý, 7 = hoàn toàn đồng ý).</p>' +
+    q("Trợ lý AI giúp phụ huynh nhận thông tin từ trường nhanh hơn", scale("r_ai_1", 7, DY)) +
+    q("Tôi sẵn lòng để trường của con dùng trợ lý AI trả lời các câu hỏi thường ngày của phụ huynh", scale("r_ai_2", 7, DY)) +
+    q("Tôi tin trợ lý AI của trường sẽ cung cấp thông tin chính xác", scale("r_ai_3", 7, DY)) +
+    q("Tôi lo trợ lý AI trả lời sai những thông tin quan trọng về con", scale("r_saisot", 7, DY)) +
+    q("Tôi tin một trường dùng trợ lý AI vẫn bảo vệ được dữ liệu của con", scale("r_dl", 7, DY)) +
+    q("Giả sử trường của con chưa có trợ lý AI và đề xuất bổ sung trợ lý AI trả lời phụ huynh ngay 24/7, chuyển nhân viên khi cần, kèm một khoản phụ thu mỗi năm. Mức phụ thu cao nhất mỗi năm anh/chị đồng ý là:", radio("r_wtp", WTP)) + "</div>";
+}, fields: ["r_ai_1", "r_ai_2", "r_ai_3", "r_saisot", "r_dl", "r_wtp"] });
+
+PAGES.push({ id: "hieubiet_h5", render: function () {
+  return '<div class="card"><h2>Hai câu cuối</h2>' +
+    q("Khi trợ lý AI của trường gặp câu hỏi về sức khỏe riêng của con, thường thì:", radio("k_vanhanh", [[1, "Trợ lý tự trả lời"], [2, "Trợ lý chuyển cho giáo viên hoặc nhân viên"], [3, "Tôi không biết"]])) +
+    q("Theo luật hiện hành, phụ huynh có quyền yêu cầu nhà trường xóa dữ liệu cá nhân của con không?", radio("k_quyen", [[1, "Có"], [2, "Không"], [3, "Tôi không biết"]])) + "</div>";
+}, fields: ["k_vanhanh", "k_quyen"] });
+
 // ---------- Điều khiển ----------
 var cur = 0;
 function show(i) {
@@ -186,10 +236,12 @@ function show(i) {
     '<p class="err" id="err"></p><div class="nav"><button id="btn">Tiếp tục</button></div>';
   document.getElementById("prog").style.width = Math.round(100 * i / PAGES.length) + "%";
   document.getElementById("btn").onclick = go;
+  if (p.onshow) p.onshow();
   window.scrollTo(0, 0);
 }
 function go() {
   var p = PAGES[cur], ok = true;
+  if (document.getElementById("btn").disabled) return;
   (p.fields || []).forEach(function (f) { if (val(f) === null) ok = false; });
   if (p.check && !p.check()) ok = false;
   if (!ok) { document.getElementById("err").textContent = "Xin trả lời đầy đủ các câu trên trang này."; return; }
