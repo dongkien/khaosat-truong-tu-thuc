@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khảo sát lựa chọn trường tư thục</title>
+<style>
+  :root {
+    --navy: #0E2C54; --red: #9B1B1E; --bg: #f6f7f9; --card: #ffffff; --ink: #1d2433;
+    --muted: #5b6474; --line: #d9dee6; --sel: #e8eef7; --ok: #1f6f43;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  header { background: var(--navy); color: #fff; padding: 12px 16px; }
+  header b { font-size: 15px; letter-spacing: .2px; }
+  .bar { height: 4px; background: rgba(255,255,255,.25); margin-top: 8px; border-radius: 2px; }
+  .bar > i { display: block; height: 100%; width: 0; background: #fff; border-radius: 2px; transition: width .2s; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 16px; margin-bottom: 14px; }
+  h1 { font-size: 20px; margin: 0 0 10px; color: var(--navy); }
+  h2 { font-size: 17px; margin: 0 0 8px; color: var(--navy); }
+  p { margin: 0 0 10px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .q { margin: 16px 0 6px; font-weight: 600; }
+  .opts { display: flex; flex-direction: column; gap: 6px; }
+  .opts label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line);
+                border-radius: 8px; cursor: pointer; background: #fff; }
+  .opts label:has(input:checked) { background: var(--sel); border-color: var(--navy); }
+  .scale { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .scale.s5 { grid-template-columns: repeat(5, 1fr); }
+  .scale label { text-align: center; padding: 9px 0; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; background: #fff; }
+  .scale label:has(input:checked) { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .scale input, .ab input { position: absolute; opacity: 0; pointer-events: none; }
+  .ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 3px; }
+  table.cj { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+  table.cj th, table.cj td { border-bottom: 1px solid var(--line); padding: 8px 6px; vertical-align: top; }
+  table.cj th { text-align: left; color: var(--muted); font-weight: 600; width: 30%; }
+  table.cj thead td { font-weight: 700; color: var(--navy); text-align: center; background: var(--sel); }
+  .ab { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ab label { text-align: center; padding: 12px 0; border: 2px solid var(--line); border-radius: 8px; font-weight: 700; cursor: pointer; background: #fff; }
+  .ab label:has(input:checked) { border-color: var(--red); background: #fbecec; color: var(--red); }
+  input[type=number] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid var(--line); border-radius: 8px; }
+  .nav { display: flex; justify-content: flex-end; gap: 8px; }
+  button { font: inherit; padding: 11px 20px; border-radius: 8px; border: 0; background: var(--navy); color: #fff; cursor: pointer; }
+  button:disabled { background: #a9b3c2; cursor: not-allowed; }
+  .vign { background: #fbf8ef; border-left: 4px solid var(--red); padding: 12px 14px; border-radius: 6px; }
+  .err { color: var(--red); font-size: 14px; min-height: 1.2em; }
+  pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; background: #f0f2f5; padding: 10px; border-radius: 6px; max-height: 260px; overflow: auto; }
+  .test { background: #fff4d6; border: 1px solid #e8c56a; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; }
+  @media (max-width: 420px) { table.cj { font-size: 13px; } table.cj th { width: 34%; } }
+</style>
+</head>
+<body>
+<header><b>Khảo sát: Phụ huynh lựa chọn trường tư thục tại Hà Nội</b><div class="bar"><i id="prog"></i></div></header>
+<main id="app"></main>
+<script src="thietke_web.js"></script>
+<script>
+/* ========================== CẤU HÌNH ==========================
+ * ENDPOINT: đường link Web App của Google Apps Script (file nhan_du_lieu.gs) sau khi triển khai.
+ *           Để trống "" = CHẾ ĐỘ THỬ: không gửi đi đâu, cuối bài hiện dữ liệu để kiểm tra.
+ * LINK_QUA: đường link Google Form riêng để phụ huynh để lại số điện thoại bốc thăm (không gắn với câu trả lời).
+ */
+var ENDPOINT = "";
+var LINK_QUA = "";
+/* ============================================================= */
+
+var THUOC_TINH = [
+  ["hocphi", "Học phí/năm", ["60 triệu đồng", "100 triệu đồng", "150 triệu đồng", "200 triệu đồng"]],
+  ["siso", "Sĩ số lớp", ["35 học sinh", "28 học sinh", "20 học sinh"]],
+  ["hocthuat", "Chất lượng học thuật", ["Trung bình khá", "Khá", "Thuộc nhóm tốt nhất Hà Nội"]],
+  ["kenh", "Kênh liên lạc với trường", ["Nhiều kênh riêng (giáo viên, kế toán, xe đưa đón, bán trú mỗi bên một kênh)",
+                                       "Một đầu mối tích hợp (một ứng dụng hoặc Zalo OA cho mọi dịch vụ)"]],
+  ["ngoaigio", "Phản hồi ngoài giờ", ["Không có, chỉ trả lời trong giờ hành chính", "Nhân viên trực, trả lời trong 24 giờ",
+                                      "Trợ lý AI trả lời ngay 24/7, chuyển nhân viên khi cần"]],
+  ["baocao", "Báo cáo học tập", ["Theo học kỳ", "Hằng tháng, do giáo viên viết", "Hằng tuần, cá nhân hóa do AI tổng hợp và giáo viên duyệt"]],
+  ["dulieu", "Dữ liệu của con", ["Chỉ nhà trường sử dụng", "Nhà trường và đối tác công nghệ sử dụng, có cam kết bảo mật"]]
+];
+var KB_CHUNG = "Hãy hình dung con anh/chị đang học tại Trường X, một trường tư thục ở Hà Nội. Một buổi sáng thứ Tư, cháu bị sốt nhẹ ở trường. " +
+  "Anh/chị cần: (1) báo sẽ đón cháu về sớm, (2) hủy chuyến xe đưa đón buổi chiều, (3) xin bài và lịch học bù.";
+var KB = {
+  1: "Ở Trường X, mỗi việc liên hệ một đầu mối riêng: anh/chị gọi điện cho giáo viên chủ nhiệm để báo đón cháu, nhắn vào nhóm Zalo của tổ xe đưa đón để hủy chuyến, và gửi email cho văn phòng học vụ để xin bài học bù. Các bộ phận trả lời trong giờ hành chính.",
+  2: "Ở Trường X, mỗi việc liên hệ một đầu mối riêng: anh/chị nhắn cho giáo viên chủ nhiệm để báo đón cháu, nhắn cho tổ xe đưa đón để hủy chuyến, và nhắn cho văn phòng học vụ để xin bài học bù. Ở mỗi đầu mối có một trợ lý AI trả lời ngay lập tức 24/7 và chuyển cho nhân viên khi cần.",
+  3: "Trường X có một ứng dụng phụ huynh duy nhất cho mọi dịch vụ. Anh/chị gửi một tin nhắn trong ứng dụng; nhân viên chăm sóc phụ huynh tiếp nhận và điều phối giáo viên chủ nhiệm, tổ xe đưa đón và văn phòng học vụ. Nhân viên trả lời trong giờ hành chính.",
+  4: "Trường X có một ứng dụng phụ huynh duy nhất cho mọi dịch vụ, có trợ lý AI. Anh/chị gửi một tin nhắn; trợ lý AI trả lời ngay, hủy chuyến xe, gửi lịch học bù và báo giáo viên chủ nhiệm; nhân viên chăm sóc phụ huynh kiểm tra lại và liên hệ anh/chị khi cần."
+};
+var DY = ["Hoàn toàn không đồng ý", "Hoàn toàn đồng ý"];
+
+// ---------- Khởi tạo phiên: phân ngẫu nhiên phiên bản, thứ tự thuộc tính ----------
+function rid() { var a = new Uint32Array(2); crypto.getRandomValues(a); return "W" + a[0].toString(36) + a[1].toString(36); }
+function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+var PB = 1 + Math.floor(Math.random() * 20);
+var TK = THIET_KE_WEB[String(PB)];
+var THUTU = shuffle([0, 1, 2, 3, 4, 5, 6]);
+var R = { id: rid(), phienban: PB, nhom_kichban: TK.nhom, thutu_thuoctinh: THUTU.map(function (j) { return THUOC_TINH[j][0]; }).join("|"),
+          batdau: new Date().toISOString(), thiet_bi: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "dienthoai" : "maytinh" };
+// Kênh tiếp cận: mỗi kênh phát một link riêng dạng ...?k=tr01 (trường), ?k=nh03 (nhóm phụ huynh), ?k=ca (cá nhân)
+R.nguon = (new URLSearchParams(location.search).get("k") || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 20);
+
+// ---------- Tiện ích dựng câu hỏi ----------
+function radio(name, items) {   // items: [[giá trị, nhãn], ...]
+  return '<div class="opts">' + items.map(function (it) {
+    return '<label><input type="radio" name="' + name + '" value="' + it[0] + '"><span>' + it[1] + '</span></label>'; }).join("") + "</div>";
+}
+function scale(name, n, ends) {
+  var s = '<div class="scale' + (n === 5 ? " s5" : "") + '">';
+  for (var k = 1; k <= n; k++) s += '<label><input type="radio" name="' + name + '" value="' + k + '">' + k + "</label>";
+  return s + '</div><div class="ends"><span>' + ends[0] + "</span><span>" + ends[1] + "</span></div>";
+}
+function q(text, html) { return '<p class="q">' + text + "</p>" + html; }
+function val(name) { var e = document.querySelector('input[name="' + name + '"]:checked'); return e ? e.value : null; }
+
+// ---------- Các trang ----------
+var PAGES = [];
+PAGES.push({ id: "dongy", render: function () {
+  return '<div class="card"><h1>Thư mời tham gia khảo sát</h1>' +
+    "<p>Nhóm nghiên cứu của Trường Đại học Ngoại thương mời anh/chị tham gia một khảo sát về cách phụ huynh lựa chọn trường tư thục và đánh giá dịch vụ liên lạc giữa nhà trường và gia đình.</p>" +
+    "<p>Khảo sát mất khoảng 12 phút. Anh/chị sẽ so sánh 8 cặp trường giả định và trả lời một tình huống ngắn. Không có câu trả lời đúng hay sai.</p>" +
+    "<p>Việc tham gia là <b>tự nguyện và ẩn danh</b>. Chúng tôi không thu họ tên, số điện thoại, tên trường của con hay địa chỉ IP. Dữ liệu chỉ dùng cho mục đích nghiên cứu, được xử lý theo Luật Bảo vệ dữ liệu cá nhân 2025, và chỉ được công bố ở dạng tổng hợp. Anh/chị có thể dừng bất cứ lúc nào.</p>" +
+    '<p class="muted">Liên hệ: Nguyễn Hoài Thu và TS. Đỗ Ngọc Kiên, Trường Đại học Ngoại thương (dongockien@ftu.edu.vn).</p>' +
+    q("Anh/chị có đồng ý tham gia không?", radio("dongy", [[1, "Tôi đồng ý tham gia"], [0, "Tôi không đồng ý"]])) + "</div>";
+}, check: function () { return val("dongy") !== null; }, save: function () { R.dongy = +val("dongy"); },
+   next: function () { return R.dongy === 1 ? null : "ket_thuc_som"; } });
+
+PAGES.push({ id: "loc", render: function () {
+  return '<div class="card"><h2>Câu hỏi sàng lọc</h2>' +
+    q("Anh/chị có con đang học, hoặc dự định cho con học, trường tư thục tại Hà Nội trong 3 năm tới không?", radio("loc", [[1, "Có"], [0, "Không"]])) + "</div>";
+}, check: function () { return val("loc") !== null; }, save: function () { R.loc = +val("loc"); },
+   next: function () { return R.loc === 1 ? null : "ket_thuc_som"; } });
+
+PAGES.push({ id: "thongtin", render: function () {
+  var h = '<div class="card"><h2>Thông tin chung</h2>' +
+    q("Con anh/chị (con lớn nhất đang đi học) học cấp nào?", radio("con_cap", [[1, "Tiểu học"], [2, "Trung học cơ sở"], [3, "Trung học phổ thông"]])) +
+    q("Hiện con học trường công lập hay tư thục?", radio("dang_hoc_tu", [[0, "Công lập"], [1, "Tư thục"]])) +
+    q("Thu nhập bình quân của hộ gia đình mỗi tháng", radio("thunhap", [[1, "Dưới 15 triệu"], [2, "15-30 triệu"], [3, "30-50 triệu"], [4, "50-80 triệu"], [5, "80-120 triệu"], [6, "Trên 120 triệu"]])) +
+    q("Anh/chị dùng ứng dụng số (ngân hàng, mua sắm, học tập) thường xuyên đến đâu?", scale("dung_so", 5, ["Rất ít", "Hằng ngày, nhiều ứng dụng"])) + "</div>";
+  h += '<div class="card"><h2>Ý kiến về AI và dữ liệu</h2><p class="muted">Mức độ đồng ý của anh/chị với từng ý sau (1 = hoàn toàn không đồng ý, 7 = hoàn toàn đồng ý).</p>' +
+    q("AI giúp các dịch vụ trả lời nhanh hơn", scale("thaido_ai_1", 7, DY)) +
+    q("Tôi sẵn lòng nhận câu trả lời từ trợ lý AI nếu có nhân viên kiểm tra lại", scale("thaido_ai_2", 7, DY)) +
+    q("Nhìn chung, tôi tin vào các công cụ AI", scale("thaido_ai_3", 7, DY)) +
+    q("Tôi lo ngại thông tin học tập của con bị chia sẻ cho bên thứ ba", scale("longai_dl_1", 7, DY)) +
+    q("Để kiểm tra sự chú ý, ở câu này xin hãy chọn số 4", scale("chuy1", 7, DY)) +
+    q("Tôi lo ngại dữ liệu của con bị dùng vào quảng cáo", scale("longai_dl_2", 7, DY)) +
+    q("Tôi muốn biết rõ dữ liệu của con được lưu ở đâu, ai được xem", scale("longai_dl_3", 7, DY)) + "</div>";
+  return h;
+}, fields: ["con_cap", "dang_hoc_tu", "thunhap", "dung_so", "thaido_ai_1", "thaido_ai_2", "thaido_ai_3", "longai_dl_1", "longai_dl_2", "longai_dl_3", "chuy1"] });
+
+PAGES.push({ id: "huongdan_cj", render: function () {
+  return '<div class="card"><h2>Phần 1: Chọn trường</h2>' +
+    "<p>Tiếp theo là <b>8 lượt</b>. Mỗi lượt có hai trường giả định A và B. Hai trường <b>giống nhau ở mọi điểm không được nêu</b> (vị trí, cơ sở vật chất, chương trình...).</p>" +
+    "<p>Ở mỗi lượt, xin chọn trường anh/chị muốn cho con học, rồi chấm điểm mức độ muốn cho con học ở từng trường. Kể cả khi chưa hài lòng với cả hai, xin vẫn chọn trường tốt hơn.</p></div>";
+} });
+
+for (var t = 1; t <= 8; t++) (function (t) {
+  PAGES.push({ id: "luot_" + t, render: function () {
+    var A = TK.luot[t - 1][0], B = TK.luot[t - 1][1];
+    var rows = THUTU.map(function (j) {
+      return "<tr><th>" + THUOC_TINH[j][1] + "</th><td>" + THUOC_TINH[j][2][A[j]] + "</td><td>" + THUOC_TINH[j][2][B[j]] + "</td></tr>"; }).join("");
+    return '<div class="card"><h2>Lượt ' + t + "/8</h2>" +
+      '<table class="cj"><thead><tr><th></th><td>Trường A</td><td>Trường B</td></tr></thead><tbody>' + rows + "</tbody></table>" +
+      q("Anh/chị chọn trường nào?", '<div class="ab"><label><input type="radio" name="chon_' + t + '" value="A">Trường A</label><label><input type="radio" name="chon_' + t + '" value="B">Trường B</label></div>') +
+      q("Mức độ muốn cho con học ở Trường A", scale("diemA_" + t, 7, ["Rất không muốn", "Rất muốn"])) +
+      q("Mức độ muốn cho con học ở Trường B", scale("diemB_" + t, 7, ["Rất không muốn", "Rất muốn"])) + "</div>";
+  }, fields: ["chon_" + t, "diemA_" + t, "diemB_" + t], raw: ["chon_" + t] });
+})(t);
+
+PAGES.push({ id: "kichban", render: function () {
+  return '<div class="card"><h2>Phần 2: Một tình huống</h2><div class="vign"><p>' + KB_CHUNG + "</p><p>" + KB[TK.nhom] + "</p></div>" +
+    '<p class="muted" style="margin-top:10px">Mức độ đồng ý của anh/chị với từng ý sau.</p>' +
+    q("Tôi tin các yêu cầu của tôi sẽ được xử lý nhanh", scale("m_phanhoi", 7, DY)) +
+    q("Thông tin tôi nhận được sẽ chính xác và thống nhất giữa các bộ phận", scale("m_nhatquan", 7, DY)) +
+    q("Tôi tin tưởng cách Trường X xử lý thông tin của con tôi", scale("m_tintuong", 7, DY)) +
+    q("Nhìn chung tôi sẽ hài lòng với cách Trường X xử lý tình huống này", scale("y_hailong", 7, DY)) +
+    q("Để kiểm tra sự chú ý, ở câu này xin hãy chọn số 2", scale("chuy2", 7, DY)) +
+    q("Nếu học phí và chất lượng học thuật tương đương trường khác, tôi sẽ chọn Trường X", scale("y_chontruong", 7, DY)) +
+    q("Mức học phí cao nhất mỗi năm anh/chị sẵn sàng trả cho Trường X (triệu đồng)", '<input type="number" id="y_hocphi" min="0" max="1000" inputmode="numeric" placeholder="Ví dụ: 120">') + "</div>";
+}, fields: ["m_phanhoi", "m_nhatquan", "m_tintuong", "y_hailong", "chuy2", "y_chontruong"],
+   check: function () { var v = document.getElementById("y_hocphi").value; return v !== "" && +v >= 0 && +v <= 1000; },
+   save: function () { R.y_hocphi = +document.getElementById("y_hocphi").value; } });
+
+// ---------- Điều khiển ----------
+var cur = 0;
+function show(i) {
+  cur = i; var p = PAGES[i];
+  document.getElementById("app").innerHTML = (ENDPOINT ? "" : '<div class="test">Chế độ thử: dữ liệu không được gửi đi.</div>') + p.render() +
+    '<p class="err" id="err"></p><div class="nav"><button id="btn">Tiếp tục</button></div>';
+  document.getElementById("prog").style.width = Math.round(100 * i / PAGES.length) + "%";
+  document.getElementById("btn").onclick = go;
+  window.scrollTo(0, 0);
+}
+function go() {
+  var p = PAGES[cur], ok = true;
+  (p.fields || []).forEach(function (f) { if (val(f) === null) ok = false; });
+  if (p.check && !p.check()) ok = false;
+  if (!ok) { document.getElementById("err").textContent = "Xin trả lời đầy đủ các câu trên trang này."; return; }
+  (p.fields || []).forEach(function (f) { var v = val(f); R[f] = (p.raw && p.raw.indexOf(f) >= 0) ? v : +v; });
+  if (p.save) p.save();
+  var nx = p.next ? p.next() : null;
+  if (nx === "ket_thuc_som") return finish(false);
+  if (cur + 1 < PAGES.length) show(cur + 1); else finish(true);
+}
+function finish(day_du) {
+  R.ketthuc = new Date().toISOString();
+  R.thoigian_phut = Math.round((new Date(R.ketthuc) - new Date(R.batdau)) / 6000) / 10;
+  R.hoanthanh = day_du ? 1 : 0;
+  document.getElementById("prog").style.width = "100%";
+  var cam_on = '<div class="card"><h1>Cảm ơn anh/chị!</h1>' + (day_du
+      ? "<p>Câu trả lời của anh/chị đã được ghi nhận.</p>" + (LINK_QUA ? '<p>Nếu muốn tham gia bốc thăm quà, xin điền số điện thoại tại <a href="' + LINK_QUA + '" target="_blank" rel="noopener">biểu mẫu riêng này</a> (không gắn với câu trả lời khảo sát).</p>' : "")
+      : "<p>Khảo sát này dành cho phụ huynh có con học hoặc dự định học trường tư thục tại Hà Nội. Cảm ơn anh/chị đã dành thời gian.</p>") + "</div>";
+  window.__KETQUA = R;
+  if (ENDPOINT) {
+    fetch(ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(R) })
+      .catch(function () { try { localStorage.setItem("chua_gui_" + R.id, JSON.stringify(R)); } catch (e) {} });
+    document.getElementById("app").innerHTML = cam_on;
+  } else {
+    document.getElementById("app").innerHTML = '<div class="test">Chế độ thử: dữ liệu dưới đây chưa được gửi đi.</div>' + cam_on +
+      '<div class="card"><h2>Dữ liệu sẽ được gửi</h2><pre>' + JSON.stringify(R, null, 1) + "</pre></div>";
+  }
+}
+show(0);
+</script>
+</body>
+</html>
