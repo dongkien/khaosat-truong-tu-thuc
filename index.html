@@ -67,7 +67,7 @@
 </style>
 </head>
 <body>
-<header><div class="hd"><img src="logo_ftu_dau.png" alt="Logo Trường Đại học Ngoại thương"><div><small>TRƯỜNG ĐẠI HỌC NGOẠI THƯƠNG</small><b>Khảo sát: Phụ huynh lựa chọn trường tư thục tại Hà Nội</b></div></div><div class="bar"><i id="prog"></i></div></header>
+<header><div class="hd"><img src="logo_ftu_dau.png" alt="Logo Trường Đại học Ngoại thương"><div><small>TRƯỜNG ĐẠI HỌC NGOẠI THƯƠNG</small><b>Khảo sát: Phụ huynh lựa chọn trường tư thục</b></div></div><div class="bar"><i id="prog"></i></div></header>
 <main id="app"></main>
 <script src="thietke_web.js"></script>
 <script>
@@ -83,7 +83,7 @@ var LINK_QUA = "https://forms.gle/edNtSX7dC6xk4m9X8";
 var THUOC_TINH = [
   ["hocphi", "Học phí/năm", ["60 triệu đồng", "100 triệu đồng", "150 triệu đồng", "200 triệu đồng"]],
   ["siso", "Sĩ số lớp", ["35 học sinh", "28 học sinh", "20 học sinh"]],
-  ["hocthuat", "Chất lượng học thuật", ["Trung bình khá", "Khá", "Thuộc nhóm tốt nhất Hà Nội"]],
+  ["hocthuat", "Chất lượng học thuật", ["Trung bình khá", "Khá", "Thuộc nhóm tốt nhất thành phố"]],
   ["kenh", "Kênh liên lạc với trường", ["Mỗi việc một kênh riêng (giáo viên, kế toán, xe, bán trú)",
                                        "Một đầu mối cho mọi việc (một ứng dụng hoặc Zalo OA)"]],
   ["ngoaigio", "Phản hồi ngoài giờ", ["Không có, chỉ trả lời trong giờ hành chính", "Nhân viên trực, trả lời trong 24 giờ",
@@ -91,7 +91,7 @@ var THUOC_TINH = [
   ["baocao", "Báo cáo học tập", ["Theo học kỳ", "Hằng tháng, do giáo viên viết", "Hằng tuần, cá nhân hóa do AI tổng hợp và giáo viên duyệt"]],
   ["dulieu", "Dữ liệu của con", ["Chỉ nhà trường sử dụng", "Nhà trường và đối tác công nghệ sử dụng, có cam kết bảo mật"]]
 ];
-var KB_CHUNG = "Hãy hình dung con anh/chị đang học tại Trường X, một trường tư thục ở Hà Nội. Một buổi sáng thứ Tư, cháu bị sốt nhẹ ở trường. " +
+var KB_CHUNG = "Hãy hình dung con anh/chị đang học tại Trường X, một trường tư thục. Một buổi sáng thứ Tư, cháu bị sốt nhẹ ở trường. " +
   "Anh/chị cần: (1) báo sẽ đón cháu về sớm, (2) hủy chuyến xe đưa đón buổi chiều, (3) xin bài và lịch học bù.";
 var KB = {
   1: "Ở Trường X, mỗi việc liên hệ một đầu mối riêng: anh/chị gọi điện cho giáo viên chủ nhiệm để báo đón cháu, nhắn vào nhóm Zalo của tổ xe đưa đón để hủy chuyến, và gửi email cho văn phòng học vụ để xin bài học bù. Các bộ phận trả lời trong giờ hành chính.",
@@ -104,11 +104,11 @@ var DY = ["Hoàn toàn không đồng ý", "Hoàn toàn đồng ý"];
 // Bốn đoạn cân độ dài; đoạn quyền dữ liệu bám Điều 4 khoản 1, khoản 5 và Điều 24 khoản 2 Luật 91/2025/QH15 (đã đối chiếu toàn văn 31/10/2026).
 var TT_O1 = {
   1: "Trợ lý AI của trường là phần mềm tự động trả lời câu hỏi thường gặp của phụ huynh như lịch học, thực đơn, hủy chuyến xe hay hạn đóng học phí. Trợ lý dựa trên thông tin nhà trường nạp vào, trả lời được cả ngoài giờ. Việc riêng của từng học sinh như sức khỏe hay kết quả học tập thường được chuyển cho giáo viên, nhân viên. Trợ lý có thể trả lời sai khi câu hỏi phức tạp hoặc thông tin chưa cập nhật, nên nhân viên cần kiểm tra lại.",
-  0: "Ở nhiều trường tư thục tại Hà Nội, học sinh bán trú ăn trưa và nghỉ trưa tại trường từ thứ Hai đến thứ Sáu. Thực đơn thường được công bố theo tuần, gồm món chính, rau, canh và tráng miệng. Phụ huynh có thể báo trước nếu con dị ứng với thực phẩm nào để nhà bếp đổi món. Giờ nghỉ trưa thường kéo dài khoảng một tiếng, có giáo viên hoặc bảo mẫu trông và phòng nghỉ được bố trí riêng cho từng lớp."
+  0: "Ở nhiều trường tư thục, học sinh bán trú ăn trưa và nghỉ trưa tại trường từ thứ Hai đến thứ Sáu. Bữa trưa thường bắt đầu ngay sau tiết học cuối buổi sáng. Thực đơn thường được công bố theo tuần, gồm món chính, rau, canh và tráng miệng. Phụ huynh có thể báo trước nếu con dị ứng với thực phẩm nào để nhà bếp đổi món. Giờ nghỉ trưa thường kéo dài khoảng một tiếng, có giáo viên hoặc bảo mẫu trông và phòng nghỉ được bố trí riêng cho từng lớp."
 };
 var TT_O2 = {
   1: "Luật Bảo vệ dữ liệu cá nhân 2025 có hiệu lực từ ngày 1/1/2026. Theo Điều 4, người có dữ liệu được biết về việc xử lý dữ liệu của mình, được đồng ý hoặc không đồng ý, được rút lại sự đồng ý, được xem, chỉnh sửa và yêu cầu xóa dữ liệu. Với trẻ em, cha mẹ là người đại diện theo pháp luật thay con thực hiện các quyền này (Điều 24). Nhà trường nhận được yêu cầu phải thực hiện kịp thời trong thời hạn luật định.",
-  0: "Dịch vụ xe đưa đón của các trường tư thục thường chia theo tuyến, mỗi xe có lái xe và một người phụ trách đón trả học sinh. Phụ huynh thường đăng ký theo học kỳ hoặc theo năm học rồi báo trước khi con nghỉ học để xe không phải chờ ở điểm đón. Giờ đón buổi sáng phụ thuộc vào vị trí của gia đình trên tuyến, nên nhà ở đầu tuyến thường được đón sớm hơn nhà ở cuối tuyến."
+  0: "Dịch vụ xe đưa đón của các trường tư thục thường chia theo tuyến, mỗi xe có lái xe và một người phụ trách đón trả học sinh. Mỗi xe thường chở vài chục học sinh. Phụ huynh thường đăng ký theo học kỳ hoặc theo năm học rồi báo trước khi con nghỉ học để xe không phải chờ ở điểm đón. Giờ đón buổi sáng phụ thuộc vào vị trí của gia đình trên tuyến, nên nhà ở đầu tuyến thường được đón sớm hơn nhà ở cuối tuyến."
 };
 var TT_GIAY = 20;   // nút Tiếp tục ở trang thông tin chỉ hiện sau 20 giây
 var WTP = [[1, "Không đồng ý, kể cả khi miễn phí"], [2, "0 đồng (chỉ đồng ý nếu miễn phí)"], [3, "1 triệu đồng"], [4, "3 triệu đồng"],
@@ -156,7 +156,7 @@ PAGES.push({ id: "dongy", render: function () {
 
 PAGES.push({ id: "loc", render: function () {
   return '<div class="card"><h2>Câu hỏi sàng lọc</h2>' +
-    q("Anh/chị có con đang học, hoặc dự định cho con học, trường tư thục tại Hà Nội trong 3 năm tới không?", radio("loc", [[1, "Có"], [0, "Không"]])) + "</div>";
+    q("Anh/chị có con đang học tại một trường tư thục ở Hà Nội hoặc TP Hồ Chí Minh không?", radio("loc", [[1, "Có"], [0, "Không"]])) + "</div>";
 }, check: function () { return val("loc") !== null; }, save: function () { R.loc = +val("loc"); },
    next: function () { return R.loc === 1 ? null : "ket_thuc_som"; } });
 
@@ -296,7 +296,7 @@ function finish(day_du) {
   document.getElementById("prog").style.width = "100%";
   var cam_on = '<div class="card"><h1>Cảm ơn anh/chị!</h1>' + (day_du
       ? "<p>Câu trả lời của anh/chị đã được ghi nhận.</p>" + (LINK_QUA ? '<p>Nếu muốn tham gia bốc thăm quà, xin điền số điện thoại tại <a href="' + LINK_QUA + '" target="_blank" rel="noopener">biểu mẫu riêng này</a> (không gắn với câu trả lời khảo sát).</p>' : "")
-      : "<p>Khảo sát này dành cho phụ huynh có con học hoặc dự định học trường tư thục tại Hà Nội. Cảm ơn anh/chị đã dành thời gian.</p>") + "</div>";
+      : "<p>Khảo sát này dành cho phụ huynh có con đang học trường tư thục tại Hà Nội hoặc TP Hồ Chí Minh. Cảm ơn anh/chị đã dành thời gian.</p>") + "</div>";
   window.__KETQUA = R;
   if (ENDPOINT) {
     fetch(ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(R) })
