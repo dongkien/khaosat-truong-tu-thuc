@@ -156,9 +156,9 @@ PAGES.push({ id: "dongy", render: function () {
 
 PAGES.push({ id: "loc", render: function () {
   return '<div class="card"><h2>Câu hỏi sàng lọc</h2>' +
-    q("Anh/chị có con đang học tại một trường tư thục ở Hà Nội hoặc TP Hồ Chí Minh không?", radio("loc", [[1, "Có"], [0, "Không"]])) + "</div>";
+    q("Anh/chị có con đang học tại một trường tư thục ở Hà Nội hoặc TP Hồ Chí Minh không?", radio("loc", [[1, "Có, ở Hà Nội"], [2, "Có, ở TP Hồ Chí Minh"], [0, "Không"]])) + "</div>";
 }, check: function () { return val("loc") !== null; }, save: function () { R.loc = +val("loc"); },
-   next: function () { return R.loc === 1 ? null : "ket_thuc_som"; } });
+   next: function () { return (R.loc === 1 || R.loc === 2) ? null : "ket_thuc_som"; } });
 
 PAGES.push({ id: "thongtin", render: function () {
   var h = '<div class="card"><h2>Thông tin chung</h2>' +
